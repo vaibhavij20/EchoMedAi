@@ -59,9 +59,10 @@ import {
   TooltipProvider, 
   TooltipTrigger 
 } from "@/components/ui/tooltip";
+import { generateFitnessResponse } from "@/lib/fitnessRecommendations";
 
 export default function FitnessTrackerPage() {
-  const { openAssistant } = useGeminiAssistant();
+  const { openAssistant, sendMessage } = useGeminiAssistant();
   const [activeTab, setActiveTab] = useState("dashboard");
   const [calorieGoal, setCalorieGoal] = useState(2200);
   const [caloriesBurned, setCaloriesBurned] = useState(1450);
@@ -161,7 +162,7 @@ export default function FitnessTrackerPage() {
 
   const handleAIRecommendations = () => {
     // Prepare the message for the AI assistant
-    const message = `
+    const fitnessMessage = `
 Based on my fitness data:
 - Current weight: ${weight} lbs (goal: ${weightGoal} lbs)
 - Daily steps: ${stepCount} (goal: ${stepGoal})
@@ -173,23 +174,14 @@ Based on my fitness data:
 Could you provide personalized fitness and nutrition recommendations to help me reach my goals?
 `;
     
-    // Open the AI assistant and send the message
+    // Open the assistant first
     openAssistant();
+    
+    // Then send the message directly using the provider's sendMessage function
+    // This bypasses the DOM manipulation which could be causing issues
     setTimeout(() => {
-      const inputElement = document.querySelector('input[placeholder="Type your health question..."]') as HTMLInputElement;
-      if (inputElement) {
-        inputElement.value = message;
-        // Trigger a change event to update the input value
-        const event = new Event('input', { bubbles: true });
-        inputElement.dispatchEvent(event);
-        
-        // Find and click the send button
-        const sendButton = document.querySelector('button[type="submit"]') as HTMLButtonElement;
-        if (sendButton) {
-          sendButton.click();
-        }
-      }
-    }, 500);
+      sendMessage(fitnessMessage);
+    }, 300);
   };
 
   // Calculate calories burned during exercise

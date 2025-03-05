@@ -27,9 +27,10 @@ import {
   Waves
 } from "lucide-react";
 import { useGeminiAssistant } from "@/components/ai-assistant/gemini-assistant-provider";
+import { generateMentalWellnessResponse } from "@/lib/mentalWellnessRecommendations";
 
 export default function MentalWellnessPage() {
-  const { openAssistant } = useGeminiAssistant();
+  const { openAssistant, sendMessage } = useGeminiAssistant();
   const [activeTab, setActiveTab] = useState("assessment");
   const [moodScore, setMoodScore] = useState<number>(7);
   const [anxietyLevel, setAnxietyLevel] = useState<number>(3);
@@ -157,23 +158,14 @@ Journal Entry: ${journalEntry || 'No journal entry provided'}
 Based on this information, could you provide some personalized mental wellness recommendations?
 `;
     
-    // Open the AI assistant and send the message
+    // Open the assistant first
     openAssistant();
+    
+    // Then send the message directly using the provider's sendMessage function
+    // This bypasses the DOM manipulation which could be causing issues
     setTimeout(() => {
-      const inputElement = document.querySelector('input[placeholder="Type your health question..."]') as HTMLInputElement;
-      if (inputElement) {
-        inputElement.value = message;
-        // Trigger a change event to update the input value
-        const event = new Event('input', { bubbles: true });
-        inputElement.dispatchEvent(event);
-        
-        // Find and click the send button
-        const sendButton = document.querySelector('button[type="submit"]') as HTMLButtonElement;
-        if (sendButton) {
-          sendButton.click();
-        }
-      }
-    }, 500);
+      sendMessage(message);
+    }, 300);
   };
   
   const wellnessScore = getWellnessScore();

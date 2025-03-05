@@ -2,7 +2,11 @@
 
 import React, { createContext, useState, useContext, ReactNode, useEffect, useRef } from "react";
 import { v4 as uuidv4 } from "uuid";
-import { generateStreamingChatResponse, healthcareSystemPrompt } from "@/lib/gemini";
+import { healthcareSystemPrompt } from "@/lib/gemini";
+import { generateDirectStreamingResponse } from "@/lib/directGemini";
+import { generateFallbackStreamingResponse } from "@/lib/fallbackResponses";
+import { generateFitnessResponse } from "@/lib/fitnessRecommendations";
+import { generateMentalWellnessResponse } from "@/lib/mentalWellnessRecommendations";
 import { saveAs } from "file-saver";
 import { jsPDF } from "jspdf";
 
@@ -57,6 +61,50 @@ export function GeminiAssistantProvider({ children }: { children: ReactNode }) {
   const [isCopied, setIsCopied] = useState(false);
   
   const recognitionRef = useRef<SpeechRecognition | null>(null);
+
+  // Test the API connection when the component mounts
+  useEffect(() => {
+    const testAPI = async () => {
+      try {
+        console.log("Testing direct Gemini API connection...");
+        const testPrompt = "Hello, this is a test. Please respond with a short greeting.";
+        
+        try {
+          // Try the direct API first
+          const directResponse = await generateDirectStreamingResponse(
+            testPrompt, 
+            () => {} // Empty callback since we don't need to update UI
+          );
+          console.log("API test successful with direct response:", directResponse.substring(0, 50) + "...");
+        } catch (apiError) {
+          console.error("Direct API test failed:", apiError);
+          
+          // Test fallback system
+          console.log("Testing fallback response system...");
+          const fallbackResponse = await generateFallbackStreamingResponse(
+            "hi", 
+            () => {}
+          );
+          console.log("Fallback system test successful:", fallbackResponse.substring(0, 50) + "...");
+          
+          // Add a note to the chat that we're using fallback responses
+          setMessages(prev => [
+            ...prev,
+            {
+              id: uuidv4(),
+              role: "assistant",
+              content: "Note: The AI service connection is currently unavailable. I'll be using a limited set of pre-programmed responses until the connection is restored.",
+              timestamp: new Date(),
+            }
+          ]);
+        }
+      } catch (error) {
+        console.error("All API tests failed:", error);
+      }
+    };
+    
+    testAPI();
+  }, []);
 
   // Load messages from localStorage on component mount
   useEffect(() => {
@@ -241,32 +289,95 @@ export function GeminiAssistantProvider({ children }: { children: ReactNode }) {
     setIsTyping(true);
     setCurrentResponse("");
     
-    // Format messages for Gemini API
-    const formattedMessages = messages
-      .filter(msg => msg.role !== "system") // Remove system messages as they're handled separately
-      .map(msg => ({
-        role: msg.role === "assistant" ? "model" : msg.role,
-        content: msg.content,
-      }));
-    
-    // Add the new user message
-    formattedMessages.push({
-      role: "user",
-      content: message,
-    });
-
     try {
-      // Use streaming response
-      const finalResponse = await generateStreamingChatResponse(
-        [
-          { role: "user", content: healthcareSystemPrompt }, // Add system prompt as a user message
-          ...formattedMessages,
-        ],
-        (text) => {
-          setCurrentResponse(text);
+      // Check if this is a fitness data query
+      if (message.includes("fitness data") && message.includes("goal")) {
+        console.log("Detected fitness data query, using specialized fitness response generator");
+        const fitnessResponse = generateFitnessResponse(message);
+        
+        // Simulate streaming for better UX
+        let currentText = "";
+        const words = fitnessResponse.split(" ");
+        
+        for (let i = 0; i < words.length; i++) {
+          currentText += (i === 0 ? "" : " ") + words[i];
+          setCurrentResponse(currentText);
+          await new Promise(resolve => setTimeout(resolve, 10)); // Small delay for streaming effect
         }
-      );
-
+        
+        // Add the final message
+        const aiMessage: Message = {
+          id: uuidv4(),
+          role: "assistant",
+          content: fitnessResponse,
+          timestamp: new Date(),
+        };
+        
+        setMessages((prev) => [...prev, aiMessage]);
+        setIsTyping(false);
+        return;
+      }
+      
+      // Check if this is a mental wellness query
+      if (message.includes("mental wellness advice") && message.includes("current state")) {
+        console.log("Detected mental wellness query, using specialized mental wellness response generator");
+        const wellnessResponse = generateMentalWellnessResponse(message);
+        
+        // Simulate streaming for better UX
+        let currentText = "";
+        const words = wellnessResponse.split(" ");
+        
+        for (let i = 0; i < words.length; i++) {
+          currentText += (i === 0 ? "" : " ") + words[i];
+          setCurrentResponse(currentText);
+          await new Promise(resolve => setTimeout(resolve, 10)); // Small delay for streaming effect
+        }
+        
+        // Add the final message
+        const aiMessage: Message = {
+          id: uuidv4(),
+          role: "assistant",
+          content: wellnessResponse,
+          timestamp: new Date(),
+        };
+        
+        setMessages((prev) => [...prev, aiMessage]);
+        setIsTyping(false);
+        return;
+      }
+      
+      console.log("Attempting to use direct API implementation...");
+      
+      // Format a simple prompt with the system message and user's message
+      const systemPrompt = "You are Dr. Echo, an EchoMed AI health assistant. Answer the following health question helpfully and accurately.";
+      const fullPrompt = `${systemPrompt}\n\nUser's question: ${message}`;
+      
+      let apiSucceeded = false;
+      let finalResponse = "";
+      
+      try {
+        // Try the direct API implementation first
+        finalResponse = await generateDirectStreamingResponse(
+          fullPrompt,
+          (text) => {
+            setCurrentResponse(text);
+          }
+        );
+        apiSucceeded = true;
+        console.log("Direct API response successful");
+      } catch (apiError) {
+        console.error("Direct API failed, falling back to local responses:", apiError);
+        
+        // Fall back to local responses if the API fails
+        finalResponse = await generateFallbackStreamingResponse(
+          message,
+          (text) => {
+            setCurrentResponse(text);
+          }
+        );
+        console.log("Using fallback response system");
+      }
+      
       // When streaming is complete, add the final message
       const aiMessage: Message = {
         id: uuidv4(),
@@ -276,19 +387,19 @@ export function GeminiAssistantProvider({ children }: { children: ReactNode }) {
       };
       
       setMessages((prev) => [...prev, aiMessage]);
-      setIsTyping(false);
     } catch (error) {
-      console.error("Error sending message:", error);
+      console.error("Error in sendMessage:", error);
       
-      // Add error message
+      // Add an error message
       const errorMessage: Message = {
         id: uuidv4(),
         role: "assistant",
-        content: "I'm sorry, I encountered an error processing your request. Please try again later.",
+        content: "I'm sorry, there was an error processing your request. Please try again.",
         timestamp: new Date(),
       };
       
       setMessages((prev) => [...prev, errorMessage]);
+    } finally {
       setIsTyping(false);
     }
   };

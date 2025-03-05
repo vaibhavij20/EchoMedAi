@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, Bell, Clock, Pill, Calendar } from "lucide-react";
+import { ChevronRight, Bell, Clock, Pill, Calendar, Heart, Plus } from "lucide-react";
 
 export function UpcomingReminders() {
   const reminders = [
@@ -89,5 +89,3 @@ export function UpcomingReminders() {
     </Card>
   );
 }
-
-import { Heart, Plus } from "lucide-react";

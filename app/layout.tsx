@@ -3,10 +3,12 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { ThemeProvider } from '@/components/theme-provider';
 import { Toaster } from '@/components/ui/toaster';
-import { GeminiAssistantProvider } from '@/components/ai-assistant/gemini-assistant-provider';
-import { GeminiAssistantButton } from '@/components/ai-assistant/gemini-assistant-button';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
+import { AIAssistantProvider } from '@/components/ai-assistant/ai-assistant-provider';
+import { GeminiAssistantProvider } from '@/components/ai-assistant/gemini-assistant-provider';
+import GeminiAssistantButton from '@/components/ai-assistant/gemini-assistant-button';
+import { Toaster as SonnerToaster } from 'sonner';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -37,6 +39,7 @@ export default function RootLayout({
             </div>
             <GeminiAssistantButton />
             <Toaster />
+            <SonnerToaster position="top-right" closeButton theme="dark" richColors />
           </GeminiAssistantProvider>
         </ThemeProvider>
       </body>
