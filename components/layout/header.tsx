@@ -19,7 +19,8 @@ import {
   Calendar,
   Dumbbell,
   MessageSquare,
-  Video
+  Video,
+  Map
 } from "lucide-react";
 
 const navItems = [
@@ -31,6 +32,7 @@ const navItems = [
   { name: "VR Doctor", href: "/vr-doctor", icon: Video },
   { name: "Mental Wellness", href: "/mental-wellness", icon: Brain },
   { name: "Fitness Tracker", href: "/fitness-tracker", icon: Dumbbell },
+  { name: "Maps", href: "/maps", icon: Map },
   { name: "Learning Center", href: "/learning-center", icon: BookOpen },
 ];
 
