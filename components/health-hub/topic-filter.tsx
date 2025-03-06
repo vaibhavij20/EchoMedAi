@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { 
   Heart, 
-  Pills, 
+  Pill, 
   Brain, 
   Apple, 
   Baby, 
@@ -25,7 +25,7 @@ import {
 const HEALTH_TOPICS = [
   { id: "all", label: "All Topics", icon: Globe },
   { id: "heart-health", label: "Heart Health", icon: Heart },
-  { id: "medications", label: "Medications", icon: Pills },
+  { id: "medications", label: "Medications", icon: Pill },
   { id: "mental-health", label: "Mental Health", icon: Brain },
   { id: "nutrition", label: "Nutrition", icon: Apple },
   { id: "pediatrics", label: "Pediatrics", icon: Baby },
