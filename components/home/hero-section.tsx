@@ -104,20 +104,20 @@ export function HeroSection() {
             className="relative"
           >
             <div className="relative mx-auto w-full max-w-md">
-              <div className="aspect-[4/3] rounded-2xl bg-gradient-to-br from-[#556B2F] to-[#556B2F]/60 p-2 shadow-2xl">
-                <div className="h-full w-full rounded-xl bg-[#1a1f13]/95 p-4 backdrop-blur">
+              <div className="aspect-[4/3] rounded-2xl bg-gradient-to-br from-[hsl(142,70%,45%)] to-[hsl(142,70%,45%)]/60 p-2 shadow-2xl">
+                <div className="h-full w-full rounded-xl bg-[hsl(142,50%,8%)]/95 p-4 backdrop-blur">
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center space-x-2">
-                      <Stethoscope className="h-6 w-6 text-[#90A955]" />
-                      <span className="font-semibold">Heart Analysis</span>
+                      <Stethoscope className="h-6 w-6 text-[hsl(142,70%,45%)]" />
+                      <span className="font-semibold text-[hsl(142,70%,45%)]">Heart Analysis</span>
                     </div>
-                    <span className="text-xs bg-[#556B2F]/10 text-[#90A955] px-2 py-1 rounded-full">
+                    <span className="text-xs bg-[hsl(142,70%,45%)]/10 text-[hsl(142,70%,45%)] px-2 py-1 rounded-full">
                       Live
                     </span>
                   </div>
                   
                   <div className="space-y-4">
-                    <div className="h-16 w-full rounded-lg bg-[#1a1f13] relative overflow-hidden">
+                    <div className="h-16 w-full rounded-lg bg-[hsl(142,50%,8%)] relative overflow-hidden">
                       <svg 
                         className="absolute inset-0 w-full h-full"
                         preserveAspectRatio="none"
@@ -125,8 +125,8 @@ export function HeroSection() {
                       >
                         <defs>
                           <linearGradient id="line-gradient" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor="#90A955" />
-                            <stop offset="100%" stopColor="#556B2F" />
+                            <stop offset="0%" stopColor="hsl(142,70%,45%)" />
+                            <stop offset="100%" stopColor="hsl(142,70%,35%)" />
                           </linearGradient>
                         </defs>
                         <path
@@ -196,7 +196,7 @@ export function HeroSection() {
                         <path
                           className="ecg-glow"
                           d="M 1000,50 L 950,50"
-                          stroke="#90A955"
+                          stroke="hsl(142,70%,45%)"
                           strokeWidth="2"
                           filter="blur(3px)"
                           opacity="0.6"
@@ -220,14 +220,14 @@ export function HeroSection() {
                       .ecg-line {
                         stroke-linecap: round;
                         stroke-linejoin: round;
-                        filter: drop-shadow(0 0 1px #90A955);
+                        filter: drop-shadow(0 0 2px hsl(142,70%,45%));
                       }
                       
                       .ecg-grid {
                         background-size: 20px 20px;
                         background-image: 
-                          linear-gradient(to right, rgba(144, 169, 85, 0.1) 1px, transparent 1px),
-                          linear-gradient(to bottom, rgba(144, 169, 85, 0.1) 1px, transparent 1px);
+                          linear-gradient(to right, hsla(142,70%,45%,0.1) 1px, transparent 1px),
+                          linear-gradient(to bottom, hsla(142,70%,45%,0.1) 1px, transparent 1px);
                       }
                     `}</style>
 
